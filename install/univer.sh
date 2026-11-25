@@ -316,6 +316,8 @@ pid /run/univer-nginx.pid;
 error_log /var/log/univer/nginx-error.log;
 events { worker_connections 256; }
 http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
     access_log /var/log/univer/nginx-access.log;
     server {
         listen ${PORT};
@@ -362,6 +364,18 @@ if [[ "${CODE}" != "200" ]]; then
   log "FEHLER: Web-UI antwortet mit HTTP ${CODE} (erwartet 200)."
   journalctl -u univer --no-pager | tail -30
   exit 1
+fi
+# JS-Asset-Content-Type prüfen: ohne mime.types liefert nginx text/plain und der
+# Browser blockt das Module-Script -> weiße Seite. Muss *javascript* sein.
+JSGLOB="$(ls "${APP_DIR}"/dist/assets/*.js 2>/dev/null | head -1 || true)"
+if [[ -n "${JSGLOB}" ]]; then
+  JSTYPE="$(curl -s -o /dev/null -w '%{content_type}' "http://localhost:${PORT}/assets/$(basename "${JSGLOB}")" || true)"
+  if [[ "${JSTYPE}" != *javascript* ]]; then
+    log "FEHLER: JS-Asset Content-Type '${JSTYPE}' (erwartet application/javascript)."
+    log "-> mime.types wird nicht geladen? nginx-Konfiguration prüfen."
+    exit 1
+  fi
+  log "JS-Asset Content-Type OK (${JSTYPE})."
 fi
 log "OK: Service aktiv, Web-UI HTTP 200 auf Port ${PORT}."
 INNEREOF
