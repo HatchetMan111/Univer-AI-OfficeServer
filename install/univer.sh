@@ -114,10 +114,15 @@ detect_storage() {
 
 detect_bridge() {
   if [[ -n "$BRIDGE" ]]; then echo "$BRIDGE"; return 0; fi
-  local b
-  b="$(ip -o link show 2>/dev/null | awk -F': ' '/vmbr/{print $2; exit}')"
-  [[ -n "$b" ]] && { echo "$b"; return 0; }
-  echo "vmbr0"
+  local d name
+  # Bevorzugt eine echte Linux-Bridge (Unterverzeichnis 'bridge' vorhanden).
+  for d in /sys/class/net/*; do
+    name="$(basename "$d")"
+    [[ -d "$d/bridge" ]] && { echo "$name"; return 0; }
+  done
+  # Fallback: erstes vmbr-Gerät, sonst vmbr0.
+  name="$(ip -o link show 2>/dev/null | awk -F': ' '/vmbr/{print $2; exit}')"
+  echo "${name:-vmbr0}"
 }
 
 # ---------- Template (arch-bewusst, kein arm64-auf-amd64) --------------------
@@ -144,6 +149,36 @@ choose_template() {
 }
 
 # ---------- CT-Helfer --------------------------------------------------------
+# pct create mit ostype-Fallback: neues PVE (>=9) kennt 'l26' nicht mehr und
+# verlangt 'debian' – wir probieren beide, wiederholen aber NUR bei einem
+# echten ostype-Enum-Fehler (sonst sofort abbrechen + vollständige Ausgabe).
+create_ct() {
+  local id="$1" tpl="$2" storage="$3" bridge="$4" ost errlog
+  local -a base=(
+    "$id" "${TEMPLATE_STORAGE}:vztmpl:${tpl}"
+    --hostname "$CT_HOSTNAME"
+    --cores "$CORES" --memory "$RAM"
+    --rootfs "${storage}:${DISK}"
+    --net0 "name=eth0,bridge=${bridge},ip=dhcp"
+    --nameserver "1.1.1.1 8.8.8.8"
+    --unprivileged 1 --features nesting=1
+    --onboot 1 --start 1
+  )
+  errlog="$(mktemp)"
+  for ost in l26 debian; do
+    if pct create "${base[@]}" --ostype "$ost" 2>"$errlog"; then
+      ok "CT ${id} angelegt (ostype=${ost}, onboot=1, Start angefordert)."
+      rm -f "$errlog"; return 0
+    fi
+    if ! grep -qi "ostype" "$errlog"; then
+      err "pct create fehlgeschlagen (vollständige Ausgabe):"
+      cat "$errlog" >&2; rm -f "$errlog"; return 1
+    fi
+  done
+  err "pct create mit keinem ostype (l26/debian) erfolgreich:"
+  cat "$errlog" >&2; rm -f "$errlog"; return 1
+}
+
 find_ct_id_by_hostname() {
   local name="$1" id
   if [[ -n "$FORCE_ID" ]]; then echo "$FORCE_ID"; return 0; fi
@@ -348,14 +383,11 @@ do_install() {
   ok "Template: ${tpl}"
 
   header "CT ${CTID} (${CT_HOSTNAME}) erstellen"
-  pct create "$CTID" "${TEMPLATE_STORAGE}:vztmpl:${tpl}" \
-    --hostname "$CT_HOSTNAME" \
-    --cores "$CORES" --memory "$RAM" \
-    --rootfs "${storage}:${DISK}" \
-    --net0 "name=eth0,bridge=${bridge},ip=dhcp" \
-    --nameserver "192.168.178.1 1.1.1.1 8.8.8.8" \
-    --unprivileged 1 --features nesting=1 \
-    --onboot 1 --ostype l26 --start 1
+  if [[ ! -d "/sys/class/net/${bridge}/bridge" ]]; then
+    warn "Bridge '${bridge}' ist keine Linux-Bridge – CT-Netz könnte scheitern."
+    warn "Bei Problemen mit --bridge <vmbrX> eine echte Bridge angeben."
+  fi
+  create_ct "$CTID" "$tpl" "$storage" "$bridge"
   ok "CT ${CTID} angelegt (onboot=1, Start angefordert)."
 
   # Start + Arch-Spawn-Implosion abfangen (pct create --start meldet trotz
@@ -476,6 +508,7 @@ while [[ $# -gt 0 ]]; do
     --status)     MODE="status" ;;
     --ctid)       CTID="${2:-}"; FORCE_ID="${2:-}"; shift ;;
     --id)         FORCE_ID="${2:-}"; CTID="${2:-}"; shift ;;
+    --bridge)     BRIDGE="${2:-}"; shift ;;
     --debug)      DEBUG=1 ;;
     -h|--help)
       echo "Univer-Installer  Optionen: --ctid <id> | --update | --uninstall | --status | --id <id> | --debug"
