@@ -129,9 +129,14 @@ detect_bridge() {
       fwbr*|fwln*|veth*|tap*|vme*|lo) continue ;;
     esac
     [[ -d "$d/bridge" ]] || continue
-    if ls "$d/brif" 2>/dev/null | grep -qE '^(en|eth|eno|ens|enp|bond|ib|wl)'; then
-      echo "$name"; return 0
-    fi
+    local ifn base
+    for ifn in "$d"/brif/*; do
+      [[ -e "$ifn" ]] || continue
+      base="$(basename "$ifn")"
+      if [[ "$base" =~ ^(en|eth|eno|ens|enp|bond|ib|wl) ]]; then
+        echo "$name"; return 0
+      fi
+    done
   done
   # 3) Fallback vmbr0 (Warnung im Aufrufer, notfalls --bridge nutzen).
   echo "vmbr0"
