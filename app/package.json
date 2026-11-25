@@ -10,9 +10,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@univerjs/presets": "1.6.2",
-    "@univerjs/preset-sheets-core": "1.6.2",
     "@univerjs/preset-docs-core": "1.6.2",
+    "@univerjs/preset-docs-drawing": "^1.6.2",
+    "@univerjs/preset-docs-hyper-link": "^1.6.2",
+    "@univerjs/preset-docs-thread-comment": "^1.6.2",
+    "@univerjs/preset-sheets-conditional-formatting": "^1.6.2",
+    "@univerjs/preset-sheets-core": "1.6.2",
+    "@univerjs/preset-sheets-data-validation": "^1.6.2",
+    "@univerjs/preset-sheets-drawing": "^1.6.2",
+    "@univerjs/preset-sheets-filter": "^1.6.2",
+    "@univerjs/preset-sheets-find-replace": "^1.6.2",
+    "@univerjs/preset-sheets-hyper-link": "^1.6.2",
+    "@univerjs/preset-sheets-note": "^1.6.2",
+    "@univerjs/preset-sheets-sort": "^1.6.2",
+    "@univerjs/preset-sheets-table": "^1.6.2",
+    "@univerjs/presets": "1.6.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

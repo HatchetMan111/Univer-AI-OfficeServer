@@ -1,11 +1,55 @@
 import { useEffect, useRef, useState } from 'react';
 import { createUniver, LocaleType, type FUniver } from '@univerjs/presets';
+
+// --- Sheets: Core + kostenlose Feature-Presets (keine -pro Lizenz nötig) ---
 import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core';
+import { UniverSheetsConditionalFormattingPreset } from '@univerjs/preset-sheets-conditional-formatting';
+import { UniverSheetsDataValidationPreset } from '@univerjs/preset-sheets-data-validation';
+import { UniverSheetsFindReplacePreset } from '@univerjs/preset-sheets-find-replace';
+import { UniverSheetsHyperLinkPreset } from '@univerjs/preset-sheets-hyper-link';
+import { UniverSheetsNotePreset } from '@univerjs/preset-sheets-note';
+import { UniverSheetsSortPreset } from '@univerjs/preset-sheets-sort';
+import { UniverSheetsFilterPreset } from '@univerjs/preset-sheets-filter';
+import { UniverSheetsTablePreset } from '@univerjs/preset-sheets-table';
+import { UniverSheetsDrawingPreset } from '@univerjs/preset-sheets-drawing';
+
+// --- Docs: Core + kostenlose Feature-Presets ---
 import { UniverDocsCorePreset } from '@univerjs/preset-docs-core';
-import SheetsCoreDeDE from '@univerjs/preset-sheets-core/locales/de-DE';
-import SheetsCoreEnUS from '@univerjs/preset-sheets-core/locales/en-US';
-import DocsCoreDeDE from '@univerjs/preset-docs-core/locales/de-DE';
-import DocsCoreEnUS from '@univerjs/preset-docs-core/locales/en-US';
+import { UniverDocsDrawingPreset } from '@univerjs/preset-docs-drawing';
+import { UniverDocsHyperLinkPreset } from '@univerjs/preset-docs-hyper-link';
+import { UniverDocsThreadCommentPreset } from '@univerjs/preset-docs-thread-comment';
+
+// --- Locales (de-DE + en-US) je Preset ---
+import SheetsCoreDe from '@univerjs/preset-sheets-core/locales/de-DE';
+import SheetsCoreEn from '@univerjs/preset-sheets-core/locales/en-US';
+import SheetsCfDe from '@univerjs/preset-sheets-conditional-formatting/locales/de-DE';
+import SheetsCfEn from '@univerjs/preset-sheets-conditional-formatting/locales/en-US';
+import SheetsDvDe from '@univerjs/preset-sheets-data-validation/locales/de-DE';
+import SheetsDvEn from '@univerjs/preset-sheets-data-validation/locales/en-US';
+import SheetsFrDe from '@univerjs/preset-sheets-find-replace/locales/de-DE';
+import SheetsFrEn from '@univerjs/preset-sheets-find-replace/locales/en-US';
+import SheetsHlDe from '@univerjs/preset-sheets-hyper-link/locales/de-DE';
+import SheetsHlEn from '@univerjs/preset-sheets-hyper-link/locales/en-US';
+import SheetsNoteDe from '@univerjs/preset-sheets-note/locales/de-DE';
+import SheetsNoteEn from '@univerjs/preset-sheets-note/locales/en-US';
+import SheetsSortDe from '@univerjs/preset-sheets-sort/locales/de-DE';
+import SheetsSortEn from '@univerjs/preset-sheets-sort/locales/en-US';
+import SheetsFilterDe from '@univerjs/preset-sheets-filter/locales/de-DE';
+import SheetsFilterEn from '@univerjs/preset-sheets-filter/locales/en-US';
+import SheetsTableDe from '@univerjs/preset-sheets-table/locales/de-DE';
+import SheetsTableEn from '@univerjs/preset-sheets-table/locales/en-US';
+import SheetsDrawDe from '@univerjs/preset-sheets-drawing/locales/de-DE';
+import SheetsDrawEn from '@univerjs/preset-sheets-drawing/locales/en-US';
+
+import DocsCoreDe from '@univerjs/preset-docs-core/locales/de-DE';
+import DocsCoreEn from '@univerjs/preset-docs-core/locales/en-US';
+import DocsDrawDe from '@univerjs/preset-docs-drawing/locales/de-DE';
+import DocsDrawEn from '@univerjs/preset-docs-drawing/locales/en-US';
+import DocsHlDe from '@univerjs/preset-docs-hyper-link/locales/de-DE';
+import DocsHlEn from '@univerjs/preset-docs-hyper-link/locales/en-US';
+import DocsTcDe from '@univerjs/preset-docs-thread-comment/locales/de-DE';
+import DocsTcEn from '@univerjs/preset-docs-thread-comment/locales/en-US';
+
 import '@univerjs/preset-sheets-core/lib/index.css';
 import '@univerjs/preset-docs-core/lib/index.css';
 import { store, downloadJson, type DocKind } from './persistence';
@@ -36,10 +80,20 @@ function defaultWorkbook() {
   };
 }
 
+const SHEETS_LOCALES_DE = {
+  ...SheetsCoreDe, ...SheetsCfDe, ...SheetsDvDe, ...SheetsFrDe, ...SheetsHlDe,
+  ...SheetsNoteDe, ...SheetsSortDe, ...SheetsFilterDe, ...SheetsTableDe, ...SheetsDrawDe,
+};
+const SHEETS_LOCALES_EN = {
+  ...SheetsCoreEn, ...SheetsCfEn, ...SheetsDvEn, ...SheetsFrEn, ...SheetsHlEn,
+  ...SheetsNoteEn, ...SheetsSortEn, ...SheetsFilterEn, ...SheetsTableEn, ...SheetsDrawEn,
+};
+const DOCS_LOCALES_DE = { ...DocsCoreDe, ...DocsDrawDe, ...DocsHlDe, ...DocsTcDe };
+const DOCS_LOCALES_EN = { ...DocsCoreEn, ...DocsDrawEn, ...DocsHlEn, ...DocsTcEn };
+
 export default function App() {
-  // Two INDEPENDENT Univer instances. Two core presets inside one createUniver
-  // share a single UI plugin and only the last one paints — so we keep one
-  // instance per document type, each in its own always-laid-out container.
+  // Two INDEPENDENT Univer instances (two core presets in one createUniver share
+  // a single UI plugin and only the last paints). One instance per doc type.
   const sheetsApi = useRef<FUniver | null>(null);
   const docsApi = useRef<FUniver | null>(null);
   const [tab, setTab] = useState<Tab>('sheets');
@@ -57,10 +111,21 @@ export default function App() {
       const s = createUniver({
         locale: LocaleType.DE_DE,
         locales: {
-          [LocaleType.DE_DE]: SheetsCoreDeDE,
-          [LocaleType.EN_US]: SheetsCoreEnUS,
+          [LocaleType.DE_DE]: SHEETS_LOCALES_DE,
+          [LocaleType.EN_US]: SHEETS_LOCALES_EN,
         },
-        presets: [UniverSheetsCorePreset({ container: sheetsEl })],
+        presets: [
+          UniverSheetsCorePreset({ container: sheetsEl }),
+          UniverSheetsConditionalFormattingPreset(),
+          UniverSheetsDataValidationPreset(),
+          UniverSheetsFindReplacePreset(),
+          UniverSheetsHyperLinkPreset(),
+          UniverSheetsNotePreset(),
+          UniverSheetsSortPreset(),
+          UniverSheetsFilterPreset(),
+          UniverSheetsTablePreset(),
+          UniverSheetsDrawingPreset(),
+        ],
       });
       sheetsApi.current = s.univerAPI;
       const savedSheets = store.loadSheets();
@@ -69,10 +134,15 @@ export default function App() {
       const d = createUniver({
         locale: LocaleType.DE_DE,
         locales: {
-          [LocaleType.DE_DE]: DocsCoreDeDE,
-          [LocaleType.EN_US]: DocsCoreEnUS,
+          [LocaleType.DE_DE]: DOCS_LOCALES_DE,
+          [LocaleType.EN_US]: DOCS_LOCALES_EN,
         },
-        presets: [UniverDocsCorePreset({ container: docsEl })],
+        presets: [
+          UniverDocsCorePreset({ container: docsEl }),
+          UniverDocsDrawingPreset(),
+          UniverDocsHyperLinkPreset(),
+          UniverDocsThreadCommentPreset(),
+        ],
       });
       docsApi.current = d.univerAPI;
       const savedDocs = store.loadDocs();
