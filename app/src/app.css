@@ -1,0 +1,134 @@
+:root {
+  --bg: #0f1115;
+  --bar: #171a21;
+  --bar-2: #1f232c;
+  --fg: #e7e9ee;
+  --muted: #9aa3b2;
+  --accent: #4f8cff;
+  --accent-2: #3b6fe0;
+  --border: #2a2f3a;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, var(--bar-2), var(--bar));
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+  z-index: 5;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+.logo {
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+}
+.brand-text { font-weight: 700; }
+.brand-text small { color: var(--muted); font-weight: 500; }
+
+.tabs { display: flex; gap: 6px; }
+.tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.tab:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+.tab.active {
+  color: #fff;
+  background: var(--accent-2);
+  border-color: var(--accent);
+}
+
+.actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.actions button {
+  background: var(--bar-2);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.actions button:hover { border-color: var(--accent); }
+.saved { color: var(--muted); font-size: 12px; }
+
+.errbanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #3a1d1d;
+  color: #ffd7d7;
+  border-bottom: 1px solid #5a2a2a;
+  font-size: 13px;
+  z-index: 6;
+}
+.errbanner button {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #ffd7d7;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.pane {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+.pane.show {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+@media print {
+  .bar, .errbanner { display: none !important; }
+}

@@ -1,0 +1,14 @@
+[Unit]
+Description=Univer local office suite (nginx static SPA)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/nginx -g 'daemon off;' -c /etc/univer/nginx.conf
+ExecReload=/usr/sbin/nginx -s reload -c /etc/univer/nginx.conf
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

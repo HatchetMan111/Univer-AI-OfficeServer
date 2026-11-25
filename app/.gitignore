@@ -1,0 +1,7 @@
+# Build-Quellcode-Abhängigkeiten NICHT mitcommitten – der fertige dist/ wird
+# committed, damit der LXC kein Node.js braucht.
+node_modules/
+*.local
+.vite/
+
+# dist/ wird bewusst committed (statisches Deployment ohne Node im CT).
