@@ -53,8 +53,12 @@ einen systemd-Service ein. Am Ende wird die **Web-UI-URL** ausgegeben.
 
 - URL: `http://<CT-IP>:8099` (Bind `0.0.0.0`, Port im CT offen)
 - Tabs: **📊 Tabelle** und **📄 Dokument**
+- **Tabellen-Funktionen:** bedingte Formatierung, Datenvalidierung, Suchen/Ersetzen, Hyperlinks, Notizen, Sortieren, Filtern, Tabellen, Zeichnen/Bilder
+- **Dokument-Funktionen:** Zeichnen/Bilder, Hyperlinks, Kommentare
 - Autosave alle 5 s in den Browser-LocalStorage des jeweiligen Browsers
 - Oben rechts: **Export** (JSON), **Import** (JSON), **Druck** (Browser-Druck/PDF)
+
+> **Präsentationen (Slides)** sind ein kostenpflichtiges **Pro**-Feature (`@univerjs-pro/*`, Lizenz nötig) und nicht Teil der Open-Source-Presets – daher nicht enthalten.
 
 ## Architektur
 
