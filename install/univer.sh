@@ -115,14 +115,26 @@ detect_storage() {
 detect_bridge() {
   if [[ -n "$BRIDGE" ]]; then echo "$BRIDGE"; return 0; fi
   local d name
-  # Bevorzugt eine echte Linux-Bridge (Unterverzeichnis 'bridge' vorhanden).
+  # 1) Bevorzugt eine echte vmbr*-Bridge.
+  for d in /sys/class/net/vmbr*; do
+    [[ -e "$d" ]] || continue
+    [[ -d "$d/bridge" ]] && { basename "$d"; return 0; }
+  done
+  # 2) Jede echte Bridge, die ein PHYSISCHES Interface eingebunden hat.
+  #    fwbr*/fwln*/veth*/tap*/vme* sind virtuelle Proxmox-Brücken – die CTs
+  #    hängen daran, taugen aber NICHT als net0-Bridge.
   for d in /sys/class/net/*; do
     name="$(basename "$d")"
-    [[ -d "$d/bridge" ]] && { echo "$name"; return 0; }
+    case "$name" in
+      fwbr*|fwln*|veth*|tap*|vme*|lo) continue ;;
+    esac
+    [[ -d "$d/bridge" ]] || continue
+    if ls "$d/brif" 2>/dev/null | grep -qE '^(en|eth|eno|ens|enp|bond|ib|wl)'; then
+      echo "$name"; return 0
+    fi
   done
-  # Fallback: erstes vmbr-Gerät, sonst vmbr0.
-  name="$(ip -o link show 2>/dev/null | awk -F': ' '/vmbr/{print $2; exit}')"
-  echo "${name:-vmbr0}"
+  # 3) Fallback vmbr0 (Warnung im Aufrufer, notfalls --bridge nutzen).
+  echo "vmbr0"
 }
 
 # ---------- Template (arch-bewusst, kein arm64-auf-amd64) --------------------
@@ -155,7 +167,7 @@ choose_template() {
 create_ct() {
   local id="$1" tpl="$2" storage="$3" bridge="$4" ost errlog
   local -a base=(
-    "$id" "${TEMPLATE_STORAGE}:vztmpl:${tpl}"
+    "$id" "$tpl"
     --hostname "$CT_HOSTNAME"
     --cores "$CORES" --memory "$RAM"
     --rootfs "${storage}:${DISK}"
