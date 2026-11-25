@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  UniverProxmox – lokaler Office-Suite-Container (Tabellen + Dokumente)
+#  Univer-AI-OfficeServer – lokaler Office-Suite-Container (Tabellen + Dokumente)
 #  Community-Scripts-konformer Einzeiler-Installer für Proxmox VE.
 #
 #  App:      Univer (dream-num/univer, Apache-2.0) als statische React/Vite-SPA
@@ -8,7 +8,7 @@
 #  Modus:    LXC (unprivileged, nesting=1, onboot=1)
 #
 #  Einzeiler (auf dem PVE-Host als root):
-#    bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/UniverProxmox/main/install/univer.sh)"
+#    bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/Univer-AI-OfficeServer/main/install/univer.sh)"
 #
 #  Optionen: --ctid <id>  --id <id> (--update/--uninstall/--status)  --debug
 # =============================================================================
@@ -24,10 +24,10 @@ DISK="8"             # GB
 TEMPLATE_STORAGE="local"
 STORAGE=""           # leer -> automatische Erkennung
 BRIDGE=""            # leer -> automatische Erkennung
-REPO="HatchetMan111/UniverProxmox"
+REPO="HatchetMan111/Univer-AI-OfficeServer"
 REPO_REF="main"
 TARBALL="https://codeload.github.com/${REPO}/tar.gz/refs/heads/${REPO_REF}"
-ONE_LINER='bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/UniverProxmox/main/install/univer.sh)"'
+ONE_LINER='bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/Univer-AI-OfficeServer/main/install/univer.sh)"'
 
 # ---------- Farben / Helper --------------------------------------------------
 if [[ -t 1 ]]; then
@@ -241,7 +241,7 @@ log "Repo-Tarball laden: ${TARBALL}"
 WORK="$(mktemp -d)"
 curl -fsSL "${TARBALL}" -o "${WORK}/repo.tar.gz"
 tar -xzf "${WORK}/repo.tar.gz" -C "${WORK}"
-SRC="$(find "${WORK}" -maxdepth 1 -type d -name 'UniverProxmox-*' | head -1)"
+SRC="$(find "${WORK}" -maxdepth 1 -type d -name 'Univer-AI-OfficeServer-*' | head -1)"
 if [[ -z "${SRC}" || ! -d "${SRC}/app/dist" ]]; then
   log "FEHLER: app/dist fehlt im Tarball (Repo-Struktur prüfen)."
   exit 1

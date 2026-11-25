@@ -1,4 +1,4 @@
-# UniverProxmox
+# Univer-AI-OfficeServer
 
 Lokale **Office-Suite im Browser** (Tabellen wie Excel, Dokumente wie Word) auf Basis von
 [Univer](https://github.com/dream-num/univer) (Apache-2.0) – vollständig **offline**, kein Cloud-Dienst.
@@ -14,7 +14,7 @@ Die App ist eine statische **React/Vite-SPA** (Univer-Presets 1.6.2, Sheets + Do
 ## Einzeiler-Installation (auf dem Proxmox-Host als root)
 
 ```bash
-bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/UniverProxmox/main/install/univer.sh)"
+bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/Univer-AI-OfficeServer/main/install/univer.sh)"
 ```
 
 Das Script erstellt selbstständig einen **unprivilegierten LXC-Container** (nächste freie ID,
@@ -72,10 +72,10 @@ Host (PVE) --pct create--> LXC (Debian 13, unprivileged, nesting, onboot)
 
 ```bash
 # Update (holt aktuellen dist-Build, rollt sauber um)
-bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/UniverProxmox/main/install/univer.sh)" --update
+bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/Univer-AI-OfficeServer/main/install/univer.sh)" --update
 
 # Deinstall (löscht den Container inkl. Daten)
-bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/UniverProxmox/main/install/univer.sh)" --uninstall
+bash -c "$(wget -qLO - https://raw.githubusercontent.com/HatchetMan111/Univer-AI-OfficeServer/main/install/univer.sh)" --uninstall
 ```
 
 ## Projektstruktur
